@@ -1,45 +1,25 @@
-#[derive(Clone, Copy)]
-enum Comparison {
-    Eq(usize, usize),
-    Neq(usize, usize),
-    Gt(usize, usize),
-    Lt(usize, usize),
-    Geq(usize, usize),
-    Leq(usize, usize),
-}
-
-enum Instruction {
-    Add { dst: usize, src1: usize, src2: usize },
-    Sub { dst: usize, src1: usize, src2: usize },
-    Mul { dst: usize, src1: usize, src2: usize },
-    Div { dst: usize, src1: usize, src2: usize },
-    Copy { dst: usize, src: usize },
-    Push { val: i32 },
-    Del { src: usize },
-    Out { src: usize },
-    OutStr { str: &'static str },
-    Jump { dst: usize },
-    JmpIfZero { dst: usize, src: usize },
-    JmpIfNotZero { dst: usize, src: usize},
-    JumpCmp { dst: usize, els: usize, cmp: Comparison },
-}
+use crate::vm::types::*;
 
 struct Vm {
     program: Vec<Instruction>,
+    call_stack: Vec<i32>,
     stack: Vec<i32>,
+    current_block: usize,
     current_instr: usize,
 }
 
 impl Vm {
-    fn new(program: Vec<Instruction>) -> Vm {
+    pub fn new(program: Vec<Block>) -> Vm {
         Vm {
             stack: Vec::new(),
             program,
+            call_stack: Vec::new(),
+            current_block: 0,
             current_instr: 0,
         }
     }
     
-    fn run(&mut self) {
+    pub fn run(&mut self) {
         while self.current_instr < self.program.len() {
             match self.program[self.current_instr] {
                 Instruction::Add { dst, src1, src2 } => {
